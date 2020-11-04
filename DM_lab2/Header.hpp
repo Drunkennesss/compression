@@ -11,6 +11,7 @@
 namespace CSVmanager
 {
 	typedef std::map<std::string, std::vector<double>> data_set;
+	typedef std::vector<std::vector<double>> matrix;
 
 	class reader {
 	private:
@@ -47,7 +48,10 @@ namespace CSVmanager
 				std::stringstream inner(line);
 				std::string val;
 				for (size_t j = 0; std::getline(inner, val, ','); ++j) {
-					values[j].push_back(std::stod(val));
+					try {
+						values[j].push_back(std::stod(val));
+					}
+					catch (std::invalid_argument e) {/*skip*/}
 				}
 			}
 			file.close();
@@ -82,6 +86,41 @@ namespace CSVmanager
 		}
 	
 	
+	};
+
+
+	class writer
+	{
+
+	public:
+		writer() {}
+		writer(matrix& data_) : data(data_) { }
+		writer(matrix& data_, std::string path_) : data(data_), path(path_) { }
+		void write() {
+			std::fstream file;
+			file.open(path, std::ios::out);
+			std::string result = "";
+			size_t col = data.size(), row = data[0].size();
+			
+			for (size_t j = 0; j < row; j++)
+			{
+				for (size_t i = 0; i < col; i++)
+				{
+					result += std::to_string(data[i][j]) + (i != col - 1 ? "," : "\n");
+				}
+				
+			}
+			
+			
+			file << result;
+			file.close();
+		}
+		~writer() {}
+
+	private:
+		std::string path = "data.csv";
+		matrix data;
+
 	};
 
 
